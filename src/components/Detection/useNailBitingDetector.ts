@@ -24,6 +24,11 @@ import {
 
 type Point = { x: number; y: number };
 
+export type DetectorError = {
+  kind: "model" | "camera";
+  message: string;
+};
+
 function distance(a: Point, b: Point): number {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
@@ -63,6 +68,7 @@ export function useNailBitingDetector() {
 
   const [isModelReady, setIsModelReady] = useState(false);
   const [isWebcamReady, setIsWebcamReady] = useState(false);
+  const [error, setError] = useState<DetectorError | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,8 +83,15 @@ export function useNailBitingDetector() {
         faceDetectorRef.current = faceDetector;
         setIsModelReady(true);
       })
-      .catch((error) => {
-        console.error("Failed to load detection models:", error);
+      .catch((cause) => {
+        console.error("Failed to load detection models:", cause);
+        if (!cancelled) {
+          setError({
+            kind: "model",
+            message:
+              "Couldn’t load the detection models. Check your internet connection and try again.",
+          });
+        }
       });
 
     return () => {
@@ -172,10 +185,29 @@ export function useNailBitingDetector() {
 
   const handleWebcamReady = useCallback(() => setIsWebcamReady(true), []);
 
+  const handleWebcamError = useCallback(
+    (cause: string | DOMException) => {
+      console.error("Webcam error:", cause);
+      const denied =
+        typeof cause !== "string" &&
+        (cause.name === "NotAllowedError" ||
+          cause.name === "PermissionDeniedError");
+      setError({
+        kind: "camera",
+        message: denied
+          ? "Camera access was blocked. Allow camera permissions in your browser and reload the page."
+          : "We couldn’t start your camera. Make sure no other app is using it and try again.",
+      });
+    },
+    []
+  );
+
   return {
     webcamRef,
     canvasRef,
     isReady: isModelReady && isWebcamReady,
+    error,
     handleWebcamReady,
+    handleWebcamError,
   };
 }

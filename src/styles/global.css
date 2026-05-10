@@ -89,3 +89,12 @@ body {
 .btn-second:hover {
   background-color: var(--color-secondary-hover);
 }
+
+.route-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: var(--color-muted);
+  font-size: var(--text-lg);
+}

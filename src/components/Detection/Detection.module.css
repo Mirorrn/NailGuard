@@ -36,6 +36,24 @@
   z-index: 10;
 }
 
+.errorPanel {
+  width: 100%;
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--color-text);
+}
+
+.errorPanel h2 {
+  margin: 0 0 var(--space-2);
+  color: var(--color-heading);
+}
+
+.errorPanel p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-lg);
+}
+
 .loaderOverlay {
   position: absolute;
   inset: 0;
