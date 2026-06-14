@@ -1,6 +1,7 @@
 import "./styles/global.css";
 
 import { Suspense, lazy, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { AiFillGithub } from "react-icons/ai";
 import { CiPlay1 } from "react-icons/ci";
 import { FaLinkedinIn } from "react-icons/fa";
@@ -91,6 +92,8 @@ function App() {
           </a>
         </span>
       </footer>
+
+      <Analytics />
     </div>
   );
 }
