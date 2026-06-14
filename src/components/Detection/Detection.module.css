@@ -1,22 +1,23 @@
 .container {
   position: relative;
-  top: 100px;
   width: 100%;
-  max-width: 800px;
   background-color: var(--color-surface);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
+  gap: var(--space-2);
   padding: var(--space-2);
-  margin: 0 auto var(--space-6);
 }
 
 .videoWrapper {
   position: relative;
   width: 100%;
-  padding-top: 56.25%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
 }
 
 .webcam,
@@ -25,15 +26,20 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-sm);
+  object-fit: cover;
 }
 
 .webcam {
+  /* The visible image is the mirrored canvas drawn on top; the raw <video>
+     is only a frame source for detection. */
   opacity: 0;
 }
 
 .canvas {
   z-index: 10;
+  /* Mirror so the feed reads like a selfie; the <video> source stays
+     unmirrored for detection. */
+  transform: scaleX(-1);
 }
 
 .errorPanel {
@@ -44,7 +50,10 @@
 }
 
 .errorPanel h2 {
-  margin: 0 0 var(--space-2);
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-pixel);
+  font-size: 0.9rem;
+  line-height: 1.5;
   color: var(--color-heading);
 }
 
@@ -58,63 +67,240 @@
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   align-items: center;
   justify-content: center;
   z-index: 20;
+  background-color: var(--color-surface);
 }
 
+/* Pixel-art spinner: a ring of 8 hard-edged squares whose brightness sweeps
+   around the circle, giving a crisp 8-bit "loading" feel with no curves. */
 .loader {
   position: relative;
-  width: 78px;
-  height: 78px;
-  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+}
+
+.loader span {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: calc(50% - 5px);
+  left: calc(50% - 5px);
+  background-color: var(--color-heading);
+  animation: pixelFade 0.8s linear infinite;
+}
+
+/* 8 squares stepped around the ring (translate out, then rotate into place). */
+.loader span:nth-child(1) { transform: rotate(0deg)   translateY(-16px); animation-delay: 0s; }
+.loader span:nth-child(2) { transform: rotate(45deg)  translateY(-16px); animation-delay: 0.1s; }
+.loader span:nth-child(3) { transform: rotate(90deg)  translateY(-16px); animation-delay: 0.2s; }
+.loader span:nth-child(4) { transform: rotate(135deg) translateY(-16px); animation-delay: 0.3s; }
+.loader span:nth-child(5) { transform: rotate(180deg) translateY(-16px); animation-delay: 0.4s; }
+.loader span:nth-child(6) { transform: rotate(225deg) translateY(-16px); animation-delay: 0.5s; }
+.loader span:nth-child(7) { transform: rotate(270deg) translateY(-16px); animation-delay: 0.6s; }
+.loader span:nth-child(8) { transform: rotate(315deg) translateY(-16px); animation-delay: 0.7s; }
+
+.loaderLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+}
+
+@keyframes pixelFade {
+  0%   { opacity: 1; }
+  100% { opacity: 0.15; }
+}
+
+/* --- Feature cards ------------------------------------------------------ */
+/* Each detection feature (nail-biting, posture) is its own card so the two
+   read as distinct tools rather than one intermixed control strip. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.cardTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--color-heading);
+}
+
+.cardActions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Explains the macOS focused-window behavior so silent banners while the user
+   watches their camera don't read as a broken alert. */
+.alertsHint {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+
+/* Live status badge shared by both cards. Neutral by default; colored by
+   data-state (biting) or data-status (posture severity). */
+.liveStatus {
+  font-size: var(--text-md, 0.95rem);
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.liveStatus[data-state="watching"] {
+  color: var(--color-muted);
+}
+.liveStatus[data-state="biting"] {
+  color: #f43f5e;
+  animation: recBlink 0.8s steps(2) infinite;
+}
+.liveStatus[data-status="good"] {
+  color: #34d399;
+}
+.liveStatus[data-status="slouch"],
+.liveStatus[data-status="tilt"] {
+  color: #f43f5e;
+}
+.liveStatus[data-status="unknown"] {
+  color: var(--color-muted);
+}
+
+/* Pre-calibration posture prompt: an explainer plus one primary action. */
+.calibratePrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.calibrateHint {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.calibrateError {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #f43f5e;
+}
+
+.primaryButton {
+  flex: none;
+  padding: var(--space-2) var(--space-4);
+  border: 2px solid var(--color-primary);
+  border-radius: 0;
+  background: var(--color-primary);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.primaryButton:hover {
   background: #fff;
-  border: 8px solid #131a1d;
-  overflow: hidden;
-  box-sizing: border-box;
+  color: var(--color-primary);
 }
 
-.loader::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: -50%;
-  width: 100%;
-  height: 100%;
-  background: #263238;
-  border-bottom: 8px solid #131a1d;
-  box-sizing: border-box;
-  animation: eyeShade 3s infinite;
-  z-index: 5;
+/* Export row: session-wide, visually lighter than the feature cards. */
+.exportBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-2) var(--space-1);
 }
 
-.loader::before {
-  content: "";
-  position: absolute;
-  left: 20px;
-  bottom: 15px;
-  width: 32px;
-  height: 32px;
-  background: #111;
-  border-radius: 50%;
-  animation: eyeMove 3s infinite;
-  z-index: 2;
+.exportLabel {
+  font-size: 0.85rem;
+  color: var(--color-muted);
 }
 
-@keyframes eyeShade {
-  0% { transform: translateY(0); }
-  20% { transform: translateY(5px); }
-  40%, 50% { transform: translateY(-5px); }
-  60% { transform: translateY(-8px); }
-  75% { transform: translateY(5px); }
-  100% { transform: translateY(10px); }
+.recDot {
+  width: 8px;
+  height: 8px;
+  background-color: #f43f5e;
+  animation: recBlink 1.4s steps(2) infinite;
 }
 
-@keyframes eyeMove {
-  0% { transform: translate(0, 0); }
-  20% { transform: translate(0, 5px); }
-  40%, 50% { transform: translate(0, -5px); }
-  60% { transform: translate(-10px, -5px); }
-  75% { transform: translate(-20px, 5px); }
-  100% { transform: translate(0, 10px); }
+@keyframes recBlink {
+  50% { opacity: 0.2; }
+}
+
+.ghostButton {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-heading);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-heading);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.ghostButton:hover:not(:disabled) {
+  background: var(--color-heading);
+  color: var(--color-bg);
+}
+
+.ghostButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.ghostButton[aria-pressed="false"] {
+  opacity: 0.55;
+}
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--space-2);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2) 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.statValue {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  color: var(--color-heading);
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: var(--color-muted);
 }

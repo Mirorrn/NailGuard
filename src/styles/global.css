@@ -1,20 +1,21 @@
-@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&family=Press+Start+2P&display=swap");
 
 :root {
   --color-bg: #ffffff;
-  --color-text: #1f2329;
-  --color-muted: #6c757d;
-  --color-heading: #343a40;
-  --color-border: #eaeaea;
-  --color-surface: #f8f9fa;
+  --color-text: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-heading: #111111;
+  --color-border: #e4e4e4;
+  --color-surface: #f5f5f5;
 
-  --color-primary: #fc6100;
-  --color-primary-hover: #d15101;
-  --color-primary-border: #f3833d;
+  /* Monochrome accent: near-black for buttons, links, pixel art. */
+  --color-primary: #1a1a1a;
+  --color-primary-hover: #000000;
+  --color-primary-border: #1a1a1a;
 
-  --color-secondary: #dfe1e4;
-  --color-secondary-hover: #cecbcc;
-  --color-secondary-border: #000000;
+  --color-secondary: #e4e4e4;
+  --color-secondary-hover: #d6d6d6;
+  --color-secondary-border: #1a1a1a;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -28,11 +29,10 @@
   --radius-lg: 1.25rem;
 
   --font-sans: "Raleway", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-pixel: "Press Start 2P", monospace;
   --text-base: 1rem;
   --text-lg: 1.25rem;
   --text-xl: 1.5rem;
-
-  --navbar-height: 70px;
 }
 
 html,
@@ -49,52 +49,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.content-wrap {
-  flex: 1;
-}
-
-.btn-primary,
-.btn-second {
-  display: inline-block;
-  font-size: var(--text-xl);
-  padding: var(--space-3) var(--space-5);
-  border-radius: var(--radius-sm);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-  text-align: center;
-}
-
-.btn-primary {
-  background-color: var(--color-primary);
-  border: 1px solid var(--color-primary-border);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background-color: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
-}
-
-.btn-second {
-  background-color: var(--color-secondary);
-  border: 1px solid var(--color-secondary-border);
-  color: #000;
-}
-
-.btn-second:hover {
-  background-color: var(--color-secondary-hover);
-}
-
-.route-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 50vh;
-  color: var(--color-muted);
-  font-size: var(--text-lg);
+a {
+  text-decoration: none;
 }
