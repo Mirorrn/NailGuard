@@ -145,6 +145,15 @@
   color: var(--color-heading);
 }
 
+/* One-line explainer under a card's header so each feature says what it does
+   without the user having to infer it from the status badge. */
+.cardDescription {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
 .cardActions {
   display: flex;
   gap: var(--space-2);

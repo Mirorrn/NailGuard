@@ -193,9 +193,15 @@ function BitingCard({
           className={styles.liveStatus}
           data-state={isBiting ? "biting" : "watching"}
         >
-          {isBiting ? "Biting detected!" : "Watching…"}
+          {isBiting ? "Biting now" : "Watching — no biting"}
         </span>
       </header>
+
+      <p className={styles.cardDescription}>
+        Watches your fingertips and mouth, and alerts you the moment a hand
+        moves in to bite. Turn on sound and desktop alerts so you catch it even
+        when you’re not looking at this tab.
+      </p>
 
       <div className={styles.cardActions}>
         <button
@@ -227,10 +233,19 @@ function BitingCard({
       )}
 
       <div className={styles.stats}>
-        <Stat label="Time" value={summary ? formatDuration(summary.durationMs) : "0:00"} />
-        <Stat label="Bites" value={summary ? String(summary.biteCount) : "0"} />
         <Stat
-          label="Bites/min"
+          label="Session"
+          hint="How long the camera has been running this session"
+          value={summary ? formatDuration(summary.durationMs) : "0:00"}
+        />
+        <Stat
+          label="Bites"
+          hint="Total times biting was detected this session"
+          value={summary ? String(summary.biteCount) : "0"}
+        />
+        <Stat
+          label="Per minute"
+          hint="Average bites per minute — lower is better"
           value={summary ? summary.bitesPerMinute.toFixed(1) : "0.0"}
         />
       </div>
@@ -262,11 +277,11 @@ function PostureCard({
 }: PostureCardProps) {
   const postureLabel =
     postureStatus === "good"
-      ? "Looking good"
+      ? "Good posture"
       : postureStatus === "slouch"
-        ? "Sit up — you're slouching"
+        ? "Slouching — sit up"
         : postureStatus === "tilt"
-          ? "Level out — you're leaning"
+          ? "Leaning — level out"
           : "Waiting for a clear view…";
 
   return (
@@ -282,25 +297,35 @@ function PostureCard({
 
       {isCalibrated ? (
         <>
+          <p className={styles.cardDescription}>
+            Compares your posture against the upright baseline you calibrated. If
+            you slouch forward or lean to one side, the status above turns red.
+          </p>
           <div className={styles.cardActions}>
             <button
               type="button"
               className={styles.ghostButton}
               onClick={onCalibrate}
+              title="Re-learn your upright posture — do this if you’ve moved your chair or camera"
             >
               Recalibrate
             </button>
           </div>
           <div className={styles.stats}>
-            <Stat label="Slips" value={String(postureCount ?? 0)} />
+            <Stat
+              label="Posture slips"
+              hint="Times you slouched or leaned this session"
+              value={String(postureCount ?? 0)}
+            />
           </div>
         </>
       ) : (
         <div className={styles.calibratePrompt}>
           <p className={styles.calibrateHint}>
-            Posture tracking is off until you calibrate. Sit up straight in
-            full view of the camera, then press calibrate so Nibble learns your
-            upright posture.
+            Posture tracking is off until you calibrate. Sit up straight with
+            your head and shoulders in full view, then press the button below —
+            Nibble saves that as your upright baseline and warns you whenever you
+            drift away from it.
           </p>
           {calibrationError && (
             <p className={styles.calibrateError} role="alert">
@@ -354,9 +379,17 @@ function ExportBar({ hasData, onExportCSV, onExportJSON }: ExportBarProps) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
-    <div className={styles.stat}>
+    <div className={styles.stat} title={hint}>
       <span className={styles.statValue}>{value}</span>
       <span className={styles.statLabel}>{label}</span>
     </div>
