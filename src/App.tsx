@@ -36,8 +36,9 @@ function App() {
         <NibbleMark size={56} className={styles.logo} />
         <h1 className={styles.title}>Nibble</h1>
         <p className={styles.tagline}>
-          An AI companion that helps you stop biting your nails — right in your
-          browser.
+          A free AI companion that detects nail biting through your webcam and
+          helps you break the habit — right in your browser, with nothing ever
+          leaving your device.
         </p>
       </header>
 

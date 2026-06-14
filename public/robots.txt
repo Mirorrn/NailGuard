@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nibble-azure.vercel.app/sitemap.xml
